@@ -54,7 +54,9 @@ class MyWebView : WKWebView {
 					let newWindow = next.windowControllers.first?.window
 					(newWindow?.contentView?.subviews.first as! MyWebView).load(URLRequest(url: url))
 					newWindow?.offsetFromWindow(oldWindow!)
-					NSApp.addWindowsItem(newWindow!, title: url.lastPathComponent, filename: url.isFileURL)
+					
+					//	do not bother with filenames as it not be a valid filename
+					NSApp.addWindowsItem(newWindow!, title: url.lastPathComponent, filename: false)
 				}
 				catch let error {
 					NSApp.presentError(error)
@@ -156,7 +158,8 @@ class MyWebView : WKWebView {
 						(doc as! Document).updateURL(url: itemURL)
 						dc.addDocument(doc as! Document)
 						if let window = self.window {
-							NSApp.addWindowsItem(window, title: itemURL.lastPathComponent, filename: itemURL.isFileURL)
+							//	do not bother with filenames as it not be a valid filename
+							NSApp.addWindowsItem(window, title: itemURL.lastPathComponent, filename: false)
 						}
 					}
 					if appDelegate.loadByFileURL {
@@ -451,7 +454,8 @@ class ViewController: NSViewController, WKNavigationDelegate {
 						title = "Helium"
 					}
 					if let window = self.view.window {
-						NSApp.addWindowsItem(window, title: title as String, filename: url.isFileURL)
+						//	do not bother with filenames as it not be a valid filename
+						NSApp.addWindowsItem(window, title: title as String, filename: false)
 					}
 
 					self.view.window?.title = title as String
