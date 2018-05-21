@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
         <plugIn identifier="com.apple.WebKit2IBPlugin" version="14109"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -93,6 +94,11 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
+                                        <menuItem title="Load URL…" keyEquivalent="l" id="ua4-yk-WlM">
+                                            <connections>
+                                                <action selector="loadURL:" target="Voe-Tx-rLC" id="GQk-r6-b9f"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                                         <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
                                             <connections>
@@ -159,7 +165,7 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="i678921465" customModuleProvider="target">
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="SimpleViewer" customModuleProvider="target">
                     <connections>
                         <outlet property="newWindowsItem" destination="BOF-NM-1cW" id="T8V-O4-cFj"/>
                         <outlet property="useLoadFileURL" destination="zAe-EK-tti" id="sGw-0B-tpP"/>
@@ -174,7 +180,7 @@
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
             <objects>
-                <windowController storyboardIdentifier="MainController" id="jGA-0Y-lOj" customClass="PanelController" customModule="i678921465" customModuleProvider="target" sceneMemberID="viewController">
+                <windowController storyboardIdentifier="MainController" id="jGA-0Y-lOj" customClass="PanelController" customModule="SimpleViewer" customModuleProvider="target" sceneMemberID="viewController">
                     <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="Ckk-yw-fiv" customClass="NSPanel">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" resizable="YES" utility="YES" nonactivatingPanel="YES" HUD="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
@@ -192,21 +198,21 @@
             </objects>
             <point key="canvasLocation" x="75" y="250"/>
         </scene>
-        <!--Navigation Delegate-->
+        <!--View Controller-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <viewController id="5gI-5U-AMq" customClass="ViewController" customModule="i678921465" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="5gI-5U-AMq" customClass="ViewController" customModule="SimpleViewer" customModuleProvider="target" sceneMemberID="viewController">
                     <scrollView key="view" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" id="WyX-7D-K5f">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <clipView key="contentView" id="fIC-GT-wmh" customClass="CenteredClipView" customModule="i678921465" customModuleProvider="target">
+                        <clipView key="contentView" id="fIC-GT-wmh" customClass="CenteredClipView" customModule="SimpleViewer" customModuleProvider="target">
                             <rect key="frame" x="1" y="1" width="448" height="298"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <view translatesAutoresizingMaskIntoConstraints="NO" id="EW2-0k-wy5">
                                     <rect key="frame" x="0.0" y="0.0" width="448" height="298"/>
                                     <subviews>
-                                        <wkWebView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FpH-hU-GG7" customClass="MyWebView" customModule="i678921465" customModuleProvider="target">
+                                        <wkWebView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FpH-hU-GG7" customClass="MyWebView" customModule="SimpleViewer" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="448" height="298"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <wkWebViewConfiguration key="configuration">
@@ -214,13 +220,11 @@
                                                 <wkPreferences key="preferences"/>
                                             </wkWebViewConfiguration>
                                             <connections>
+                                                <outlet property="UIDelegate" destination="5gI-5U-AMq" id="AeO-CA-0Nk"/>
                                                 <outlet property="navigationDelegate" destination="5gI-5U-AMq" id="as3-Lj-OKb"/>
                                             </connections>
                                         </wkWebView>
                                     </subviews>
-                                    <connections>
-                                        <outlet property="navigationDelegate" destination="5gI-5U-AMq" id="LMu-ZO-RaW"/>
-                                    </connections>
                                 </view>
                             </subviews>
                             <constraints>
@@ -241,7 +245,7 @@
                     </scrollView>
                     <connections>
                         <outlet property="clipView" destination="fIC-GT-wmh" id="znO-cM-qPd"/>
-                        <outlet property="view" destination="EW2-0k-wy5" id="qV5-NP-rfY"/>
+                        <outlet property="view" destination="EW2-0k-wy5" id="nRO-hR-1hS"/>
                         <outlet property="webView" destination="FpH-hU-GG7" id="78I-ke-Xil"/>
                     </connections>
                 </viewController>

@@ -343,7 +343,7 @@ class ViewController: NSViewController, WKNavigationDelegate {
 		
 		//  We allow drag from title's document icon to self or Finder
 		webView.register(forDraggedTypes: [NSURLPboardType])
-		webView.load(URLRequest(url: URL(string: "https://www.apple.com")!))
+		webView.load(URLRequest(url: URL(string: UserSettings.homePageURL.value)!))
 		
 		// Do any additional setup after loading the view.
 		DispatchQueue.main.async { [weak self]() -> Void in
@@ -454,8 +454,13 @@ class ViewController: NSViewController, WKNavigationDelegate {
 						title = "Helium"
 					}
 					if let window = self.view.window {
-						//	do not bother with filenames as it not be a valid filename
-						NSApp.addWindowsItem(window, title: title as String, filename: false)
+						if let url = webView.url {
+							if let doc = window.windowController?.document {
+								(doc as! Document).updateURL(url: url)
+							}
+							let newTitle = url.isFileURL ? url.lastPathComponent : url.absoluteString
+							NSApp.addWindowsItem(window, title: newTitle, filename: false)
+						}
 					}
 
 					self.view.window?.title = title as String

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F1238BE20B245FC0020AB9D /* UrlHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1238BD20B245FB0020AB9D /* UrlHelpers.swift */; };
+		0F1238C020B2467C0020AB9D /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1238BF20B2467C0020AB9D /* UserSettings.swift */; };
+		0F1238C220B247AE0020AB9D /* StringHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1238C120B247AE0020AB9D /* StringHelpers.swift */; };
 		0F5048ED1FDDB376007EEECC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048EC1FDDB376007EEECC /* AppDelegate.swift */; };
 		0F5048EF1FDDB376007EEECC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048EE1FDDB376007EEECC /* ViewController.swift */; };
 		0F5048F11FDDB376007EEECC /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048F01FDDB376007EEECC /* Document.swift */; };
@@ -18,6 +21,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F1238BD20B245FB0020AB9D /* UrlHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlHelpers.swift; sourceTree = "<group>"; };
+		0F1238BF20B2467C0020AB9D /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		0F1238C120B247AE0020AB9D /* StringHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHelpers.swift; sourceTree = "<group>"; };
 		0F5048E91FDDB376007EEECC /* SimpleViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F5048EC1FDDB376007EEECC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0F5048EE1FDDB376007EEECC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; usesTabs = 1; };
@@ -42,6 +48,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F1238C320B247B70020AB9D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0F1238C120B247AE0020AB9D /* StringHelpers.swift */,
+				0F1238BF20B2467C0020AB9D /* UserSettings.swift */,
+				0F1238BD20B245FB0020AB9D /* UrlHelpers.swift */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		0F43699720696F8E00AE2035 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -74,6 +90,7 @@
 				0F5048EE1FDDB376007EEECC /* ViewController.swift */,
 				D7A03DC7202159FC00489C28 /* CenteringClipView.swift */,
 				0F5048FE1FDDBD69007EEECC /* WindowController.swift */,
+				0F1238C320B247B70020AB9D /* Supporting Files */,
 				0F5048F01FDDB376007EEECC /* Document.swift */,
 				0F5048F21FDDB376007EEECC /* Assets.xcassets */,
 				0F5048F41FDDB377007EEECC /* Main.storyboard */,
@@ -166,11 +183,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F1238C220B247AE0020AB9D /* StringHelpers.swift in Sources */,
 				0F52F9C92097E31300BD9683 /* CenteringClipView.swift in Sources */,
 				0F5048EF1FDDB376007EEECC /* ViewController.swift in Sources */,
 				0F5048FF1FDDBD69007EEECC /* WindowController.swift in Sources */,
 				0F5048ED1FDDB376007EEECC /* AppDelegate.swift in Sources */,
+				0F1238C020B2467C0020AB9D /* UserSettings.swift in Sources */,
 				0F5048F11FDDB376007EEECC /* Document.swift in Sources */,
+				0F1238BE20B245FC0020AB9D /* UrlHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
