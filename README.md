@@ -1,5 +1,6 @@
 # SimpleViewer
 
+![simpleViewer](simpleViewer.png "Helium lite SimpleViewer")
 
 SimpleViewer is an off-shoot of my Helium 3 project on github.  I figured
 there may be others wading into the new WkWebView area and would apperciate
