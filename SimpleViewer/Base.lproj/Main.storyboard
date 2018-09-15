@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
-        <plugIn identifier="com.apple.WebKit2IBPlugin" version="14109"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="14113"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -24,6 +24,31 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
+                                        <menuItem title="Search" toolTip="1st, 2nd, 3rd search providers" id="1Kc-aB-wfP">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Search" id="G3C-hw-Hgk">
+                                                <items>
+                                                    <menuItem title="Bing" toolTip="Microsoft Bing" id="BHi-ob-nQ5">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="pickSearchPress:" target="Ady-hI-5gd" id="ew6-rB-OXm"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem title="Google" tag="1" toolTip="Google Search" id="7t1-zc-2AS">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="pickSearchPress:" target="Ady-hI-5gd" id="vXn-3h-ubh"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem title="Yahoo" tag="2" id="d7v-Ns-yKs">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="pickSearchPress:" target="Ady-hI-5gd" id="PCY-xS-BdQ"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                        </menuItem>
                                         <menuItem title="Create new windows" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
                                                 <action selector="doMakeNewWindows:" target="Voe-Tx-rLC" id="N9a-Bh-HgR"/>
@@ -97,6 +122,12 @@
                                         <menuItem title="Load URL…" keyEquivalent="l" id="ua4-yk-WlM">
                                             <connections>
                                                 <action selector="loadURL:" target="Voe-Tx-rLC" id="GQk-r6-b9f"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Search..." keyEquivalent="?" id="cVg-fz-lTn">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="openSearchPress:" target="Voe-Tx-rLC" id="C7O-vo-bAS"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>

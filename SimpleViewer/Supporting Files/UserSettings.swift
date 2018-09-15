@@ -1,6 +1,6 @@
 //
 //  UserSettings.swift
-//  SimpleViewer (Helium)
+//  Helium
 //
 //  Created by Christian Hoffmann on 10/31/15.
 //  Copyright © 2015 Jaden Geller. All rights reserved.
@@ -67,4 +67,8 @@ internal struct UserSettings {
 
         // swiftlint:disable:previous line_length
     )
+	
+	//  Search provider - must match k struct, menu item tags
+	static let Search = Setting<Int>("search", defaultValue: 1) // Google
+	static let Searches = Setting<Array<String>>("searches", defaultValue: [String]())
 }

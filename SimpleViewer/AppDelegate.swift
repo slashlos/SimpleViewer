@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  i678921465
+//  SimpleViewer
 //
 //  Created by Carlos D. Santiago on 12/10/17.
 //  Copyright © 2017 Carlos D. Santiago. All rights reserved.
@@ -17,6 +17,79 @@ struct RequestUserStrings {
 	let alertButton2ndInfo: String?
 	let alertButton3rdText: String?
 	let alertButton3rdInfo: String?
+}
+
+fileprivate class SearchField : NSSearchField {
+	var title : String?
+	
+	override func mouseDown(with event: NSEvent) {
+		super.mouseDown(with: event)
+		if let textEditor = currentEditor() {
+			textEditor.selectAll(self)
+		}
+	}
+	
+	convenience init(withValue: String?, modalTitle: String?) {
+		self.init()
+		
+		if let string = withValue {
+			self.stringValue = string
+		}
+		if let title = modalTitle {
+			self.title = title
+		}
+		else
+		{
+			self.title = (NSApp.delegate as! AppDelegate).title
+		}
+		if let cell : NSSearchFieldCell = self.cell as? NSSearchFieldCell {
+			cell.searchMenuTemplate = searchMenu()
+			cell.usesSingleLineMode = false
+			cell.wraps = true
+			cell.lineBreakMode = .byWordWrapping
+			cell.formatter = nil
+			cell.allowsEditingTextAttributes = false
+		}
+		(self.cell as! NSSearchFieldCell).searchMenuTemplate = searchMenu()
+	}
+	
+	fileprivate func searchMenu() -> NSMenu {
+		let menu = NSMenu.init(title: "Search Menu")
+		var item : NSMenuItem
+		
+		item = NSMenuItem.init(title: "Clear", action: nil, keyEquivalent: "")
+		item.tag = NSSearchFieldClearRecentsMenuItemTag
+		menu.addItem(item)
+		
+		item = NSMenuItem.separator()
+		item.tag = NSSearchFieldRecentsTitleMenuItemTag
+		menu.addItem(item)
+		
+		item = NSMenuItem.init(title: "Recent Searches", action: nil, keyEquivalent: "")
+		item.tag = NSSearchFieldRecentsTitleMenuItemTag
+		menu.addItem(item)
+		
+		item = NSMenuItem.init(title: "Recent", action: nil, keyEquivalent: "")
+		item.tag = NSSearchFieldRecentsTitleMenuItemTag
+		menu.addItem(item)
+		
+		item = NSMenuItem.init(title: "Recent Searches", action: nil, keyEquivalent: "")
+		item.tag = NSSearchFieldRecentsMenuItemTag
+		menu.addItem(item)
+		
+		return menu
+	}
+	
+	override func viewDidMoveToWindow() {
+		super.viewDidMoveToWindow()
+		
+		if let title = self.title {
+			self.window?.title = title
+		}
+		
+		// MARK: this gets us focus even when modal
+		self.becomeFirstResponder()
+	}
 }
 
 fileprivate class URLField: NSTextField {
@@ -85,14 +158,26 @@ extension NSURL {
 	}
 }
 
-class DocumentController : NSDocumentController {
-	override func typeForContents(of url: URL) throws -> String {
-		return "DocumentType"
-	}
-}
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
+
+	var title : String {
+		get {
+			let infoDictionary = (Bundle.main.infoDictionary)!
+			
+			//    Get the app name field
+			let appName = infoDictionary[kCFBundleExecutableKey as String] as? String ?? "SimpleViewer"
+			
+			//    Setup the version to one we constrict
+			let title = String(format:"%@ %@", appName,
+							   infoDictionary["CFBundleVersion"] as! CVarArg)
+			
+			return title
+		}
+	}
+
+	fileprivate var searchField : SearchField = SearchField.init(withValue: "SimpleViewer", modalTitle: "Search")
+	fileprivate var recentSearches = Array<String>()
 
 	var fullScreen : NSRect? = nil
 	@IBAction func toggleFullScreen(_ sender: NSMenuItem) {
@@ -321,6 +406,143 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		// Set focus on urlField
 		alert.accessoryView!.becomeFirstResponder()
 	}
+	
+	func didRequestSearch(_ strings: RequestUserStrings,
+						  onWindow: NSWindow?,
+						  title: String?,
+						  acceptHandler: @escaping (Bool,URL) -> Void) {
+		
+		// Create alert
+		let alert = NSAlert()
+		alert.alertStyle = NSAlertStyle.informational
+		alert.messageText = strings.alertMessageText
+		
+		// Create our search field with recent searches
+		let search = SearchField(withValue: strings.currentURL, modalTitle: title)
+		search.frame = NSRect(x: 0, y: 0, width: 300, height: 20)
+		(search.cell as! NSSearchFieldCell).maximumRecents = 254
+		search.recentSearches = recentSearches
+		alert.accessoryView = search
+		
+		// Add urlField and buttons to alert
+		let alert1stButton = alert.addButton(withTitle: strings.alertButton1stText)
+		if let alert1stToolTip = strings.alertButton1stInfo {
+			alert1stButton.toolTip = alert1stToolTip
+		}
+		let alert2ndButton = alert.addButton(withTitle: strings.alertButton2ndText)
+		if let alert2ndtToolTip = strings.alertButton2ndInfo {
+			alert2ndButton.toolTip = alert2ndtToolTip
+		}
+		if let alert3rdText = strings.alertButton3rdText {
+			let alert3rdButton = alert.addButton(withTitle: alert3rdText)
+			if let alert3rdtToolTip = strings.alertButton3rdInfo {
+				alert3rdButton.toolTip = alert3rdtToolTip
+			}
+		}
+		
+		if let urlWindow = onWindow {
+			alert.beginSheetModal(for: urlWindow, completionHandler: { response in
+				// buttons are user-search-url, cancel, google-search
+				switch response {
+				case NSAlertFirstButtonReturn,NSAlertThirdButtonReturn:
+					let newUrlFormat = k.searchLinks[ UserSettings.Search.value ]
+					let rawString = (alert.accessoryView as! NSTextField).stringValue
+					let newUrlString = rawString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
+					var urlString = String(format: newUrlFormat, newUrlString!)
+					let newWindow = (response == NSAlertThirdButtonReturn)
+					
+					urlString = UrlHelpers.ensureScheme(urlString)
+					if UrlHelpers.isValid(urlString: urlString) {
+						acceptHandler(newWindow,URL.init(string: urlString)!)
+						self.recentSearches.append(rawString)
+					}
+					
+				default:
+					return
+				}
+			})
+		}
+		else
+		{
+			let response = alert.runModal()
+			switch response {
+			case NSAlertFirstButtonReturn,NSAlertThirdButtonReturn:
+				let newUrlFormat = k.searchLinks[ UserSettings.Search.value ]
+				let rawString = (alert.accessoryView as! NSTextField).stringValue
+				let newUrlString = rawString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
+				var urlString = String(format: newUrlFormat, newUrlString!)
+				let newWindow = (response == NSAlertThirdButtonReturn)
+				
+				urlString = UrlHelpers.ensureScheme(urlString)
+				guard UrlHelpers.isValid(urlString: urlString), let searchURL = URL.init(string: urlString) else {
+					Swift.print("invalid: \(urlString)")
+					return
+				}
+				acceptHandler(newWindow,searchURL)
+				self.recentSearches.append(rawString)
+				
+			default:// NSAlertSecondButtonReturn:
+				return
+			}
+		}
+		
+		// Set focus on urlField
+		alert.accessoryView!.becomeFirstResponder()
+	}
+	
+	@IBAction func openSearchPress(_ sender: AnyObject) {
+		let name = k.searchNames[ UserSettings.Search.value ]
+		let info = k.searchInfos[ UserSettings.Search.value ]
+		
+		//  We have a window, create as sheet and load playlists there
+		guard let item: NSMenuItem = sender as? NSMenuItem, let window: NSWindow = item.representedObject as? NSWindow else {
+			//  No window, so load alert modally
+			
+			didRequestSearch(RequestUserStrings (
+				currentURL: nil,
+				alertMessageText:   "Search",
+				alertButton1stText: name,         alertButton1stInfo: info,
+				alertButton2ndText: "Cancel",     alertButton2ndInfo: nil,
+				alertButton3rdText: nil,          alertButton3rdInfo: nil),
+							 onWindow: nil,
+							 title: "Web Search",
+							 acceptHandler: { (newWindow,searchURL: URL) in
+								self.openURLInNewWindow(url: searchURL)
+			})
+			return
+		}
+		
+		if let _ : ViewController = window.contentViewController as? ViewController {
+			didRequestSearch(RequestUserStrings (
+				currentURL: nil,
+				alertMessageText:   "Search",
+				alertButton1stText: name,         alertButton1stInfo: info,
+				alertButton2ndText: "Cancel",     alertButton2ndInfo: nil,
+				alertButton3rdText: "New Window", alertButton3rdInfo: "Results in new window"),
+							 onWindow: window,
+							 title: "Web Search",
+							 acceptHandler: { (newWindow: Bool, searchURL: URL) in
+								if newWindow {
+									self.openURLInNewWindow(url: searchURL)
+								}
+								else
+								{
+									_ = self.doOpenLocation(url: searchURL)
+								}
+			})
+		}
+	}
+	
+	@IBAction func pickSearchPress(_ sender: NSMenuItem) {
+		//  This needs to match validateMenuItem below
+		let group = sender.tag / 100
+		let index = (sender.tag - (group * 100)) % 3
+		let key = String(format: "search%d", group)
+		
+		UserDefaults.standard.set(index as Any, forKey: key)
+		//        Swift.print("\(key) -> \(index)")
+	}
+
 	@IBAction func loadURL(_ sender: AnyObject) {
 		didRequestUserUrl(RequestUserStrings (
 			currentURL: UserSettings.homePageURL.value,
@@ -334,7 +556,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		})
 	}
 
-	
+	func openURLInNewWindow(url : URL) {
+		do {
+			let doc = try NSDocumentController.shared().makeDocument(withContentsOf: url, ofType: "Main")
+			if let window = doc.windowControllers.first?.window {
+				window.makeKeyAndOrderFront(self)
+			}
+		} catch let error {
+			NSApp.presentError(error)
+		}
+	}
+
 	@IBAction func newDocument(_ sender: AnyObject) {
 		let dc = NSDocumentController.shared()
 		do {
@@ -357,6 +589,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		get {
 			return newWindowsItem.state == NSOnState
 		}
+		set (value) {
+			newWindowsItem.state = (value ? NSOnState : NSOffState)
+		}
 	}
 	@IBOutlet weak var newWindowsItem: NSMenuItem!
 	@IBAction func doMakeNewWindows(_ sender: NSMenuItem) {
@@ -378,6 +613,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		switch menuItem.title {
 		case "Create New Windows":
 			menuItem.state = newWindowsItem.state == NSOffState ? NSOnState : NSOffState
+			break
+			
+		case k.bingName, k.googleName, k.yahooName:
+			let group = menuItem.tag / 100
+			let index = (menuItem.tag - (group * 100)) % 3
+			
+			menuItem.state = UserSettings.Search.value == index ? NSOnState : NSOffState
 			break
 			
 		default:

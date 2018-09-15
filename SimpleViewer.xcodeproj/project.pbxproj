@@ -86,12 +86,12 @@
 			isa = PBXGroup;
 			children = (
 				0FAAA08320A90F0900D28891 /* SimpleViewer.icns */,
+				0F5048F01FDDB376007EEECC /* Document.swift */,
 				0F5048EC1FDDB376007EEECC /* AppDelegate.swift */,
 				0F5048EE1FDDB376007EEECC /* ViewController.swift */,
 				D7A03DC7202159FC00489C28 /* CenteringClipView.swift */,
 				0F5048FE1FDDBD69007EEECC /* WindowController.swift */,
 				0F1238C320B247B70020AB9D /* Supporting Files */,
-				0F5048F01FDDB376007EEECC /* Document.swift */,
 				0F5048F21FDDB376007EEECC /* Assets.xcassets */,
 				0F5048F41FDDB377007EEECC /* Main.storyboard */,
 				0F5048F71FDDB377007EEECC /* Info.plist */,
@@ -132,7 +132,7 @@
 				TargetAttributes = {
 					0F5048E81FDDB376007EEECC = {
 						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Push = {
 								enabled = 0;
@@ -324,7 +324,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SimpleViewer/SimpleViewer.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = VQYGYPHYGE;
 				INFOPLIST_FILE = "$(SRCROOT)/SimpleViewer/Info.plist";
@@ -332,8 +332,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.slashlos.simpleviewer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "caac0e39-a5a5-4f84-a86a-00925cf252e6";
-				PROVISIONING_PROFILE_SPECIFIER = slashlos;
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 3.0;
 			};
@@ -345,7 +345,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SimpleViewer/SimpleViewer.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = VQYGYPHYGE;
 				INFOPLIST_FILE = "$(SRCROOT)/SimpleViewer/Info.plist";
@@ -353,8 +353,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.slashlos.simpleviewer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "caac0e39-a5a5-4f84-a86a-00925cf252e6";
-				PROVISIONING_PROFILE_SPECIFIER = slashlos;
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 3.0;
 			};

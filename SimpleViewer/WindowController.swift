@@ -1,6 +1,6 @@
 //
 //  WindowController.swift
-//  i678921465
+//  SimpleViewer
 //
 //  Created by Carlos D. Santiago on 12/10/17.
 //  Copyright © 2017 Carlos D. Santiago. All rights reserved.
@@ -16,6 +16,19 @@ struct k {
     static let ToolbarItemSpacer: CGFloat = 4.0
     static let ToolbarTextHeight: CGFloat = 12.0
     static let ToolbarlessSpacer: CGFloat = 4.0
+
+	static let bingInfo = "Microsoft Bing Search"
+	static let bingName = "Bing"
+	static let bingLink = "https://search.bing.com/search?Q=%@"
+	static let googleInfo = "Google Search"
+	static let googleName = "Google"
+	static let googleLink = "https://www.google.com/search?q=%@"
+	static let yahooName = "Yahoo"
+	static let yahooInfo = "Yahoo! Search"
+	static let yahooLink = "https://search.yahoo.com/search?q=%@"
+	static let searchInfos = [k.bingInfo, k.googleInfo, k.yahooInfo]
+	static let searchNames = [k.bingName, k.googleName, k.yahooName]
+	static let searchLinks = [k.bingLink, k.googleLink, k.yahooLink]
 }
 
 //  Offset a window from the current app key window
@@ -130,4 +143,19 @@ class PanelController : NSWindowController,NSWindowDelegate {
 		
 		return true
 	}
+	/*
+	func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+		let content = sender.contentView?.bounds.size
+		Swift.print("windowWillResize: \(frameSize) content: \(String(describing: content))")
+		return frameSize
+	}
+	func windowDidResize(_ notification: Notification) {
+		let content = (notification.object as! NSWindow).contentView?.bounds.size
+		let webView = contentViewController?.view.subviews.first as! MyWebView
+		let magnify = webView.magnification
+		let bounds = webView.bounds.size
+		let visual = NSMakeSize(bounds.width*magnify, bounds.height*magnify)
+		Swift.print("windowDidResize: \(String(describing: content)) webView: \(bounds) visual: \(magnify) \(visual)")
+	}
+	*/
 }

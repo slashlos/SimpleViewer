@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  i678921465
+//  SimpleViewer
 //
 //  Created by Carlos D. Santiago on 12/10/17.
 //  Copyright © 2017 Carlos D. Santiago. All rights reserved.
@@ -184,9 +184,29 @@ class MyWebView : WKWebView {
 	}
 }
 
-class ViewController: NSViewController, WKNavigationDelegate {
-	
+class CenteredClipView : NSClipView
+{
+	override func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
+		
+		var rect = super.constrainBoundsRect(proposedBounds)
+		if let containerView = self.documentView {
+			
+			if (rect.size.width > containerView.frame.size.width) {
+				rect.origin.x = (containerView.frame.width - rect.width) / 2
+			}
+			
+			if(rect.size.height > containerView.frame.size.height) {
+				rect.origin.y = (containerView.frame.height - rect.height) / 2
+			}
+		}
+		
+		return rect
+	}
+}
 
+class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
+	
+	var appDelegate: AppDelegate = NSApp.delegate as! AppDelegate
 	var trackingTag: NSTrackingRectTag?
 	func updateTrackingAreas() {
 		if let tag = trackingTag {
@@ -200,7 +220,8 @@ class ViewController: NSViewController, WKNavigationDelegate {
     /**
      Use to adjust the height of the Document View.  Use this instead of other methods when you want to resize the view.
      */
-    @IBOutlet weak var viewWidthConstraint: NSLayoutConstraint!
+	@IBOutlet weak var scrollView: NSScrollView!
+	@IBOutlet weak var viewWidthConstraint: NSLayoutConstraint!
     
     /**
      A link to the View from the Storyboard.  Needed for getting the image size to calculate the zoomFactor and zoomToFit.
@@ -222,14 +243,25 @@ class ViewController: NSViewController, WKNavigationDelegate {
          Updates the Document View size whenever the zoomFactor is changed.
          */
         didSet {
-			guard webView.url == nil else {
-				self.webView.magnification = zoomFactor
-				Swift.print(String.init(format: "zoomFactor: %2.1f", zoomFactor))
+			guard webView.url != nil else {
 				return
 			}
-			
-			viewHeightConstraint.constant = webView.bounds.size.height * zoomFactor
-			viewWidthConstraint.constant = webView.bounds.size.width * zoomFactor
+
+			self.webView.magnification = zoomFactor
+//			scrollView.magnification = zoomFactor
+/*
+			let content = self.view.window?.contentView?.bounds.size
+			let bounds = self.webView.bounds.size
+			let visual = NSMakeSize(bounds.width*zoomFactor, bounds.height*zoomFactor)
+			Swift.print("zoom: \(String(describing: content)) webView: \(bounds) visual: \(zoomFactor) \(visual)")*/
+
+			if let viewConstraint = viewHeightConstraint {
+				viewConstraint.constant = webView.bounds.size.height * zoomFactor
+			}
+			if let viewConstraint = viewWidthConstraint {
+				viewConstraint.constant = webView.bounds.size.width * zoomFactor
+			}
+			Swift.print(String.init(format: "zoomFactor: %2.1f", zoomFactor))
 		}
     }
 
@@ -314,6 +346,8 @@ class ViewController: NSViewController, WKNavigationDelegate {
 		childView.leadingAnchor.constraint(equalTo: parentView.leadingAnchor).isActive = true
 		childView.trailingAnchor.constraint(equalTo: parentView.trailingAnchor).isActive = true
 		childView.bottomAnchor.constraint(equalTo: parentView.bottomAnchor).isActive = true
+//		childView.widthAnchor.constraint(equalTo: parentView.widthAnchor).isActive = true
+		
 	}
 	
 	override func viewDidLoad() {
@@ -390,7 +424,7 @@ class ViewController: NSViewController, WKNavigationDelegate {
 					
                     Swift.print("loaded: \(url)")
                     
-					let notif = Notification(name: Notification.Name(rawValue: "HeliumNewURL"), object: url);
+					let notif = Notification(name: Notification.Name(rawValue: "NewURL"), object: url);
 					NotificationCenter.default.post(notif)
 					
 					// once loaded update window title,size with video name,dimension
@@ -416,7 +450,7 @@ class ViewController: NSViewController, WKNavigationDelegate {
 									origin.y += (oldSize.height - webSize.height)
 									webView.window?.setContentSize(webSize)
 									webView.window?.setFrameOrigin(origin)
-									webView.bounds.size = webSize
+									//webView.bounds.size = webSize
 								}
 							}
 							
@@ -451,7 +485,7 @@ class ViewController: NSViewController, WKNavigationDelegate {
 							panelController.updateTrackingAreas(true)*/
 						}
 					} else {
-						title = "Helium"
+						title = "SimpleViewer"
 					}
 					if let window = self.view.window {
 						if let url = webView.url {
@@ -463,16 +497,73 @@ class ViewController: NSViewController, WKNavigationDelegate {
 						}
 					}
 
-					self.view.window?.title = title as String
+					self.view.window?.title = title.removingPercentEncoding!
 				}
 			}
 		}
 	}
 
+	//	MARK: Nav Delegate
 	func webView(_ webView: WKWebView,
 				 decidePolicyFor navigationAction: WKNavigationAction,
 				 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+		
+		guard navigationAction.buttonNumber < 2 else {
+			if let url = navigationAction.request.url {
+				Swift.print("newWindow with url:\(String(describing: url))")
+				self.appDelegate.openURLInNewWindow(url: url)
+			}
+			decisionHandler(WKNavigationActionPolicy.cancel)
+			return
+		}
 		decisionHandler(WKNavigationActionPolicy.allow)
+	}
+	
+	//	MARK: UI Delegate
+	func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+				 for navigationAction: WKNavigationAction,
+				 windowFeatures: WKWindowFeatures) -> WKWebView? {
+		
+		if navigationAction.targetFrame == nil {
+			appDelegate.openURLInNewWindow(url: navigationAction.request.url!)
+			return nil
+		}
+
+		let newWindows = appDelegate.newWindows
+		var newWebView : WKWebView?
+		Swift.print("createWebViewWith")
+		
+		if let newURL = navigationAction.request.url {
+			appDelegate.newWindows = false
+			do {
+				let doc = try NSDocumentController.shared().makeDocument(withContentsOf: newURL, ofType: "Custom")
+				if let vwc = doc.windowControllers.first as? PanelController,
+					let window = vwc.window, let cvc = window.contentViewController as? ViewController {
+					let newView = MyWebView.init(frame: webView.frame, configuration: configuration)
+					let contentView = window.contentView!
+					
+					cvc.webView = newView
+					contentView.addSubview(newView)
+					
+					newView.navigationDelegate = cvc
+					newView.uiDelegate = cvc
+					newWebView = cvc.webView
+					cvc.viewDidLoad()
+					
+					//  Setups all done, make us visible
+					cvc.webView.load(navigationAction.request)
+
+					window.makeKeyAndOrderFront(self)
+				}
+			} catch let error {
+				NSApp.presentError(error)
+			}
+		}
+		if appDelegate.newWindows != newWindows {
+			appDelegate.newWindows = newWindows
+		}
+		
+		return newWebView
 	}
 
 }
