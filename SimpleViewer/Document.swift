@@ -42,7 +42,6 @@ class DocumentController : NSDocumentController {
 }
 
 class Document: NSDocument {
-	var viewURL : URL?
 	
 	override init() {
 	    super.init()
@@ -56,8 +55,6 @@ class Document: NSDocument {
 	}
 	convenience init(contentsOf url: URL, ofType typeName: String) throws {
 		self.init()
-		self.fileType = url.pathExtension
-		self.fileURL = url
 		
 		//  Record url and type, caller will load via notification
 		do {
@@ -74,8 +71,8 @@ class Document: NSDocument {
 			{
 				fileURL = url
 			}
-			viewURL = fileURL
-			
+			self.fileType = fileURL?.pathExtension
+
 			if let wvc = self.windowControllers.first, let cvc = wvc.contentViewController {
 				(cvc as! ViewController).webView.next(url: url)
 				wvc.window?.orderFront(self)
@@ -100,19 +97,19 @@ class Document: NSDocument {
 		//  Delegate will close down any observations before closure
 		controller.window?.delegate = controller as? NSWindowDelegate
 		
-		if (viewURL != nil), let webView = controller.window?.contentView?.subviews.first {
-			(webView as! MyWebView).next(url: viewURL!)
+		if (fileURL != nil), let webView = controller.window?.contentView?.subviews.first {
+			(webView as! MyWebView).next(url: fileURL!)
 		}
 	}
 	
 	override func read(from url: URL, ofType typeName: String) throws {
 		do {
 			if typeName == "webloc", let webURL = url.webloc {
-				viewURL = webURL
+				fileURL = webURL
 			}
 			else
 			{
-				viewURL = url
+				fileURL = url
 			}
 		}
 	}
