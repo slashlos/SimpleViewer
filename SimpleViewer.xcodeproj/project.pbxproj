@@ -10,14 +10,14 @@
 		0F1238BE20B245FC0020AB9D /* UrlHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1238BD20B245FB0020AB9D /* UrlHelpers.swift */; };
 		0F1238C020B2467C0020AB9D /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1238BF20B2467C0020AB9D /* UserSettings.swift */; };
 		0F1238C220B247AE0020AB9D /* StringHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1238C120B247AE0020AB9D /* StringHelpers.swift */; };
+		0F214D2C2150854300093179 /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048FE1FDDBD69007EEECC /* WindowController.swift */; };
 		0F5048ED1FDDB376007EEECC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048EC1FDDB376007EEECC /* AppDelegate.swift */; };
-		0F5048EF1FDDB376007EEECC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048EE1FDDB376007EEECC /* ViewController.swift */; };
 		0F5048F11FDDB376007EEECC /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048F01FDDB376007EEECC /* Document.swift */; };
 		0F5048F31FDDB376007EEECC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F5048F21FDDB376007EEECC /* Assets.xcassets */; };
 		0F5048F61FDDB377007EEECC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0F5048F41FDDB377007EEECC /* Main.storyboard */; };
-		0F5048FF1FDDBD69007EEECC /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048FE1FDDBD69007EEECC /* WindowController.swift */; };
 		0F52F9C92097E31300BD9683 /* CenteringClipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A03DC7202159FC00489C28 /* CenteringClipView.swift */; };
 		0FAAA08420A90F0900D28891 /* SimpleViewer.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0FAAA08320A90F0900D28891 /* SimpleViewer.icns */; };
+		0FDEDBB8215088B4002DA137 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5048EE1FDDB376007EEECC /* ViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -185,11 +185,11 @@
 			files = (
 				0F1238C220B247AE0020AB9D /* StringHelpers.swift in Sources */,
 				0F52F9C92097E31300BD9683 /* CenteringClipView.swift in Sources */,
-				0F5048EF1FDDB376007EEECC /* ViewController.swift in Sources */,
-				0F5048FF1FDDBD69007EEECC /* WindowController.swift in Sources */,
 				0F5048ED1FDDB376007EEECC /* AppDelegate.swift in Sources */,
 				0F1238C020B2467C0020AB9D /* UserSettings.swift in Sources */,
+				0F214D2C2150854300093179 /* WindowController.swift in Sources */,
 				0F5048F11FDDB376007EEECC /* Document.swift in Sources */,
+				0FDEDBB8215088B4002DA137 /* ViewController.swift in Sources */,
 				0F1238BE20B245FC0020AB9D /* UrlHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
