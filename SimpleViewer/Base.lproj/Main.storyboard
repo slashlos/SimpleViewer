@@ -49,7 +49,8 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem title="Create new windows" keyEquivalent="," id="BOF-NM-1cW">
+                                        <menuItem title="Create new windows" id="BOF-NM-1cW">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="doMakeNewWindows:" target="Voe-Tx-rLC" id="N9a-Bh-HgR"/>
                                             </connections>
@@ -96,10 +97,22 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="File" id="bib-Uj-vzu">
                                     <items>
-                                        <menuItem title="New" keyEquivalent="n" id="Was-JA-tGl">
-                                            <connections>
-                                                <action selector="newDocument:" target="Ady-hI-5gd" id="4Si-XN-c54"/>
-                                            </connections>
+                                        <menuItem title="New" id="x83-c3-Dbk">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="New" id="SKi-LI-0XV">
+                                                <items>
+                                                    <menuItem title="Window" keyEquivalent="n" id="lZm-60-JIf">
+                                                        <connections>
+                                                            <action selector="newDocument:" target="Ady-hI-5gd" id="AE2-0k-2ZP"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem title="Tab" keyEquivalent="N" id="BT9-Rr-kuq">
+                                                        <connections>
+                                                            <action selector="newDocument:" target="Ady-hI-5gd" id="cpA-J7-VyZ"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
                                         </menuItem>
                                         <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
                                             <connections>
@@ -168,7 +181,7 @@
                                         <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
                                         <menuItem title="Full Screen" keyEquivalent="f" id="4J7-dP-txa">
                                             <connections>
-                                                <action selector="toggleFullScreen:" target="Voe-Tx-rLC" id="hsD-9C-QAG"/>
+                                                <action selector="toggleFullScreen:" target="Ady-hI-5gd" id="N7M-NO-0hm"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -227,7 +240,7 @@
                 </windowController>
                 <customObject id="6f7-a7-6o1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="250"/>
+            <point key="canvasLocation" x="67" y="398"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="hIz-AP-VOD">

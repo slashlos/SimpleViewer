@@ -577,8 +577,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			let window : NSPanel = wc!.window as! NSPanel as NSPanel
 			NSApp.addWindowsItem(window, title: (window.windowController?.document?.displayName)!, filename: false)
 
+			if let event = NSApp.currentEvent, event.modifierFlags.contains(.shift), let keyWindow = NSApp.keyWindow {
+				keyWindow.addTabbedWindow(window, ordered: .below)
+			}
+			else
+			{
+				window.makeKeyAndOrderFront(sender)
+			}
 			//  Remember to close down any observations before closure
-			window.makeKeyAndOrderFront(sender)
 		}
 		catch let error {
 			NSApp.presentError(error)
@@ -587,15 +593,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	var newWindows : Bool {
 		get {
-			return newWindowsItem.state == NSOnState
+			return newWindowsState == NSOnState
 		}
 		set (value) {
-			newWindowsItem.state = (value ? NSOnState : NSOffState)
+			newWindowsState = (value ? NSOnState : NSOffState)
 		}
 	}
-	@IBOutlet weak var newWindowsItem: NSMenuItem!
+	var newWindowsState : NSControl.StateValue = NSOffState
 	@IBAction func doMakeNewWindows(_ sender: NSMenuItem) {
-		newWindowsItem.state = (newWindowsItem.state == NSOnState) ? NSOffState : NSOnState
+		newWindowsState = (newWindowsState == NSOnState) ? NSOffState : NSOnState
 	}
 	
 	var loadByFileURL : Bool {
@@ -607,12 +613,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	@IBOutlet weak var useLoadFileURL: NSMenuItem!
 	@IBAction func doLoadFileURL(_ sender: Any) {
 		useLoadFileURL.state = (useLoadFileURL.state == NSOnState) ? NSOffState : NSOnState
-
 	}
+	
 	override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 		switch menuItem.title {
-		case "Create New Windows":
-			menuItem.state = newWindowsItem.state == NSOffState ? NSOnState : NSOffState
+		case "Create new windows":
+			menuItem.state = newWindowsState == NSOffState ? NSOnState : NSOffState
 			break
 			
 		case k.bingName, k.googleName, k.yahooName:
@@ -623,10 +629,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			break
 			
 		default:
-			Swift.print("menuItem:\(menuItem.title) \(menuItem.state)")
+			Swift.print("default:\(menuItem.title) \(menuItem.state)")
 			break
 		}
 		return true;
+	}
+	// MARK:- Global/Local key monitor
+	var localKeyDownMonitor : Any? = nil
+	var commandKeyDown : Bool = false {
+		didSet {
+			let notif = Notification(name: Notification.Name(rawValue: "commandKeyDown"),
+									 object: NSNumber(booleanLiteral: commandKeyDown))
+			NotificationCenter.default.post(notif)
+		}
+	}
+	
+	func keyDownMonitor(event: NSEvent) -> Bool {
+		switch event.modifierFlags.intersection(.deviceIndependentFlagsMask) {
+			
+		case [.command]:
+			self.commandKeyDown = true
+			return true
+			
+		default:
+			self.commandKeyDown = false
+			return false
+		}
 	}
 
 	// MARK:- Sandbox Support
@@ -766,7 +794,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		Swift.print ("+ \(url)")
 		return true
 	}
-
+	
+	// MARK:- Delegate
 	func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
 		let dc = NSDocumentController.shared()
 		return dc.documents.count == 0
@@ -781,12 +810,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		// Insert code here to initialize your application
 		//  Load sandbox bookmark url
 		if self.isSandboxed() { _ = self.loadBookmarks() }
+		
+		//	Watch local keys for window movenment, etc.
+		localKeyDownMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEventMask.flagsChanged) { (event) -> NSEvent? in
+			return self.keyDownMonitor(event: event) ? nil : event
+		}
 	}
 
 	func applicationWillTerminate(_ aNotification: Notification) {
 		// Insert code here to tear down your application
 		//  Save sandbox bookmark url
 		if self.isSandboxed() { _ = self.saveBookmarks() }
+		
+		//  Forget key down monitoring
+		NSEvent.removeMonitor(localKeyDownMonitor!)
 	}
 }
 

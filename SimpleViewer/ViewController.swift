@@ -18,7 +18,15 @@ class MyWebView : WKWebView {
 	}
 	
 	override var mouseDownCanMoveWindow: Bool {
-		return true
+		get {
+			if let window = self.window {
+				return window.isMovableByWindowBackground
+			}
+			else
+			{
+				return false
+			}
+		}
 	}
 
 	override func mouseEntered(with theEvent: NSEvent) {
@@ -375,6 +383,13 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		// Listen for load progress
 		webView.addObserver(self, forKeyPath: "estimatedProgress", options: NSKeyValueObservingOptions.new, context: nil)
 		
+		//	Watch command key changes
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(ViewController.commandKeyDown(_:)),
+			name: NSNotification.Name(rawValue: "commandKeyDown"),
+			object: nil)
+		
 		//  We allow drag from title's document icon to self or Finder
 		webView.register(forDraggedTypes: [NSURLPboardType])
 		webView.load(URLRequest(url: URL(string: UserSettings.homePageURL.value)!))
@@ -500,6 +515,14 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 					self.view.window?.title = title.removingPercentEncoding!
 				}
 			}
+		}
+	}
+	
+	internal func commandKeyDown(_ notification : Notification) {
+		let commandKeyDown : NSNumber = notification.object as! NSNumber
+		if let window = self.view.window {
+			window.isMovableByWindowBackground = commandKeyDown.boolValue
+			Swift.print(String(format: "command %@", commandKeyDown.boolValue ? "v" : "^"))
 		}
 	}
 

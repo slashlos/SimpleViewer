@@ -158,4 +158,85 @@ class PanelController : NSWindowController,NSWindowDelegate {
 		Swift.print("windowDidResize: \(String(describing: content)) webView: \(bounds) visual: \(magnify) \(visual)")
 	}
 	*/
+	//	MARK:- Drag-n-Drop
+	func window(_ window: NSWindow, shouldDragDocumentWith event: NSEvent, from dragImageLocation: NSPoint, with pasteboard: NSPasteboard) -> Bool {
+		let url = (document as! Document).fileURL
+		Swift.print("pasteboard \(String(describing: url))")
+		
+		if url?.scheme != "file" {
+			let urlString = String(format: """
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+	<plist version=\"1.0\">
+	<dict>
+	<key>URL</key>
+	<string>%@</string>
+	</dict>
+	</plist>
+""", (url?.absoluteString)!)
+			Swift.print("drop \(urlString)")
+			pasteboard.setString(urlString, forType: "NSFilePromiseProvider")
+			pasteboard.setString(urlString, forType: kPasteboardTypeFileURLPromise)
+//			pasteboard.setString((url?.absoluteString)!, forType: kPasteboardTypeFileURLPromise)
+			pasteboard.setString(urlString, forType: kPasteboardTypeFileURLPromise)
+		}
+		
+		return true
+	}
+	
+	public func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
+		let url = (document as! Document).fileURL?.lastPathComponent
+		Swift.print("url \(String(describing: url))")
+		return "name.webloc"
+	}
+	public func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider,
+									writePromiseTo url: URL,
+									completionHandler: @escaping (Error?) -> Void) {
+		let urlString = String(format: """
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+	<plist version=\"1.0\">
+	<dict>
+	<key>URL</key>
+	<string>%@</string>
+	</dict>
+	</plist>
+""", ((document as! Document).fileURL?.absoluteString)!)
+		Swift.print("promise \(urlString)")
+		
+		do {
+			try urlString.write(to: url, atomically: true, encoding: .utf8)
+			completionHandler(nil)
+		} catch let error {
+			completionHandler(error)
+		}
+	}
+}
+
+
+public class MyFilePromiseProvider : NSFilePromiseProvider {
+
+	public override func writableTypes(for pasteboard: NSPasteboard) -> [String] {
+
+		var types = super.writableTypes(for: pasteboard)
+		types.append("webloc")
+			
+		return types;
+	}
+	
+	public override func writingOptions(forType type: String, pasteboard: NSPasteboard) -> NSPasteboardWritingOptions {
+		
+		if type == "webloc" {
+			return []
+		}
+		return super.writingOptions(forType: type, pasteboard: pasteboard)
+	}
+	
+	public override func pasteboardPropertyList(forType type: String) -> Any? {
+		
+		if type == "webloc" {
+			return "Hello world!"
+		}
+		return super.pasteboardPropertyList(forType: type)
+	}
 }
