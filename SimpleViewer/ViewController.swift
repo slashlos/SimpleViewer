@@ -216,6 +216,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 	
 	var appDelegate: AppDelegate = NSApp.delegate as! AppDelegate
 	var trackingTag: NSTrackingRectTag?
+	dynamic var observing : Bool = false
 	func updateTrackingAreas() {
 		if let tag = trackingTag {
 			view.removeTrackingRect(tag)
@@ -382,6 +383,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		
 		// Listen for load progress
 		webView.addObserver(self, forKeyPath: "estimatedProgress", options: NSKeyValueObservingOptions.new, context: nil)
+		observing = true
 		
 		//	Watch command key changes
 		NotificationCenter.default.addObserver(
@@ -422,8 +424,11 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		webView.loadHTMLString("about:blank", baseURL: nil)
         
         // Wind down all observations
-        webView.removeObserver(navDelegate, forKeyPath: "estimatedProgress")
-        NotificationCenter.default.removeObserver(navDelegate)
+		if observing {
+			webView.removeObserver(navDelegate, forKeyPath: "estimatedProgress")
+			NotificationCenter.default.removeObserver(navDelegate)
+			observing = false
+		}
     }
     
 	var webSize = CGSize(width: 0,height: 0)

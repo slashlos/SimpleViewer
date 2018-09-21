@@ -141,6 +141,9 @@ class PanelController : NSWindowController,NSWindowDelegate {
 		// Wind down all observations
 		NotificationCenter.default.removeObserver(self)
 		
+		//	If view isn't visible stop its observations
+		(panel.contentViewController as! ViewController).viewWillDisappear()
+		
 		return true
 	}
 	/*
