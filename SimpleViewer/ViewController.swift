@@ -523,7 +523,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		}
 	}
 	
-	internal func commandKeyDown(_ notification : Notification) {
+	@objc internal func commandKeyDown(_ notification : Notification) {
 		let commandKeyDown : NSNumber = notification.object as! NSNumber
 		if let window = self.view.window {
 			window.isMovableByWindowBackground = commandKeyDown.boolValue
