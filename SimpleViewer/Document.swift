@@ -7,6 +7,26 @@
 //
 
 import Cocoa
+import QuickLook
+
+let kTitleUtility =		16
+let	kTitleNormal =		22
+
+extension NSImage {
+	
+	func resize(w: Int, h: Int) -> NSImage {
+		let destSize = NSMakeSize(CGFloat(w), CGFloat(h))
+		let newImage = NSImage(size: destSize)
+		newImage.lockFocus()
+		self.draw(in: NSMakeRect(0, 0, destSize.width, destSize.height),
+				  from: NSMakeRect(0, 0, self.size.width, self.size.height),
+				  operation: .sourceOver,
+				  fraction: CGFloat(1))
+		newImage.unlockFocus()
+		newImage.size = destSize
+		return NSImage(data: newImage.tiffRepresentation!)!
+	}
+}
 
 class DocumentController : NSDocumentController {
 	override func typeForContents(of url: URL) throws -> String {
@@ -43,6 +63,23 @@ class DocumentController : NSDocumentController {
 
 class Document: NSDocument {
 	
+	var displayImage: NSImage? {
+		get {
+			if (self.fileURL?.isFileURL) != nil {
+				let size = NSMakeSize(CGFloat(kTitleNormal), CGFloat(kTitleNormal))
+				
+				let tmp = QLThumbnailImageCreate(kCFAllocatorDefault, self.fileURL! as CFURL , size, nil)
+				if let tmpImage = tmp?.takeUnretainedValue() {
+					let tmpIcon = NSImage(cgImage: tmpImage, size: size)
+					return tmpIcon
+				}
+			}
+			let tmpImage = NSImage.init(named: "docIcon")
+			let docImage = tmpImage?.resize(w: 32, h: 32)
+			return docImage
+		}
+	}
+
 	override init() {
 	    super.init()
 		// Add your subclass-specific initialization here.
