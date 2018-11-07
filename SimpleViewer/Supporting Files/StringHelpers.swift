@@ -18,7 +18,16 @@ extension String {
             return self
         }
     }
-    
+	func replaceSuffix(_ suffix: String, replacement: String) -> String {
+		if hasSuffix(suffix) {
+			let sufsize = suffix.count < count ? -suffix.count : 0
+			let toIndex = index(endIndex, offsetBy: sufsize)
+			return substring(to: toIndex) + replacement
+		}
+		else {
+			return self
+		}
+	}
     func indexOf(_ target: String) -> Int {
         let range = self.range(of: target)
         if let range = range {
