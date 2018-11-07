@@ -126,6 +126,12 @@ extension URL {
 			}
 		}
 	}
+	var webFilename : String? {
+		get {
+			let scheme = String(format: "%@://", self.scheme!)
+			return self.absoluteString.replacingOccurrences(of: scheme, with: "")
+		}
+	}
 }
 
 extension NSURL {
