@@ -179,6 +179,10 @@ class MyWebView : WKWebView {
 					}
 				}
 				else
+				if let data = item.data(forType: kUTTypeData as String) {
+					Swift.print("data \(data)")
+				}
+				else
 				{
 					Swift.print("items has \(item.types)")
 				}
