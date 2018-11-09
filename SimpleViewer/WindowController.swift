@@ -257,8 +257,17 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 	</dict>
 	</plist>
 """, ((document as! Document).fileURL?.absoluteString)!)
-			pasteboard.setString(urlString, forType: NSPasteboardTypeString)
-			
+            let filename = String(format: "%@%@", pasteboard.string(forType: kUTTypeFileURL as String)!, ((document as! Document).fileURL?.webFilename)!)
+
+            pasteboard.clearContents()
+            pasteboard.setString(urlString, forType: NSPasteboardTypeString)
+            pasteboard.setString(filename, forType: kPasteboardTypeFileURLPromise)
+//            pasteboard.setString(filename, forType: kUTTypeFileURL as String)
+            
+            let item = MyFilePromiseProvider.init()
+            item.userInfo = self.document
+            pasteboard.writeObjects([item])
+
 			window.drag(dragImage, at: dragImageLocation, offset: NSZeroSize, event: event, pasteboard: pasteboard, source: self, slideBack: true)
 		}
 		
