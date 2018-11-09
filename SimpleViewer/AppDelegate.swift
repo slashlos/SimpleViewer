@@ -129,7 +129,7 @@ extension URL {
 	var webFilename : String? {
 		get {
 			let scheme = String(format: "%@://", self.scheme!)
-			return self.absoluteString.replacingOccurrences(of: scheme, with: "")
+            return self.absoluteString.replacingOccurrences(of: scheme, with: "")
 		}
 	}
 }
@@ -375,13 +375,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 					}
 				}
 				else
-					if response == NSAlertFirstButtonReturn {
-						// swiftlint:disable:next force_cast
-						var newUrl = (alert.accessoryView as! NSTextField).stringValue
-						newUrl = UrlHelpers.ensureScheme(newUrl)
-						if UrlHelpers.isValid(urlString: newUrl) {
-							acceptHandler(newUrl)
-						}
+                if response == NSAlertFirstButtonReturn {
+                    // swiftlint:disable:next force_cast
+                    var newUrl = (alert.accessoryView as! NSTextField).stringValue
+                    newUrl = UrlHelpers.ensureScheme(newUrl)
+                    if UrlHelpers.isValid(urlString: newUrl) {
+                        acceptHandler(newUrl)
+                    }
 				}
 			})
 		}
