@@ -129,7 +129,8 @@ extension URL {
 	var webFilename : String? {
 		get {
 			let scheme = String(format: "%@://", self.scheme!)
-            return self.absoluteString.replacingOccurrences(of: scheme, with: "")
+            let filename = self.absoluteString.replacingOccurrences(of: scheme, with: "").replaceSuffix("/", replacement: ".webloc")
+			return filename
 		}
 	}
 }
