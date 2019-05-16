@@ -121,7 +121,7 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 	}
 	
 	override func mouseEntered(with theEvent: NSEvent) {
-		if theEvent.modifierFlags.contains(.shift) {
+		if theEvent.modifierFlags.contains(NSEvent.ModifierFlags.shift) {
 			NSApp.activate(ignoringOtherApps: true)
 		}
 		else
@@ -150,22 +150,22 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 			let hitPoint = docIcon.convert(location, to: docIcon.superview)
 			let hitView = docIcon.hitTest(hitPoint)
 			
-			let eventMask: NSEvent.EventTypeMask = [.leftMouseUp, .leftMouseDragged]
-			let timeout = NSEventDurationForever//NSEvent.foreverDuration
+			let eventMask: NSEvent.EventTypeMask = [NSEvent.EventTypeMask.leftMouseUp, NSEvent.EventTypeMask.leftMouseDragged]
+			let timeout = NSEvent.foreverDuration//NSEvent.foreverDuration
 			
 			if hitView == docIcon {
 				window.trackEvents(matching: eventMask, timeout: timeout, mode: .eventTrackingRunLoopMode, handler: {(event, stop) in
 					
-					if event.type == .leftMouseUp {
+                    if event?.type == .leftMouseUp {
 						stop.pointee = true
 					} else {
-						let movedLocation = docIcon.convert(event.locationInWindow, from: nil)
+                        let movedLocation = docIcon.convert((event?.locationInWindow)!, from: nil)
 						if abs(movedLocation.x - location.x) > self.dragThreshold || abs(movedLocation.y - location.y) > self.dragThreshold {
 							stop.pointee = true
 							if let delegate : PanelController = window.delegate as? PanelController {
 								let draggingItem = NSDraggingItem(pasteboardWriter: delegate.pasteboardWriter(forWebloc: self))
 								draggingItem.setDraggingFrame(docIcon.frame, contents: delegate.doc!.displayImage)
-								docIcon.beginDraggingSession(with: [draggingItem], event: event, source: self)
+                                docIcon.beginDraggingSession(with: [draggingItem], event: event!, source: self)
 							}
 						}
 					}
@@ -174,7 +174,7 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 		}
 	}
 	
-	var trackingTag: NSTrackingRectTag?
+	var trackingTag: NSView.TrackingRectTag?
 	func updateTrackingAreas(_ establish : Bool) {
 		if let tag = trackingTag {
 			window!.standardWindowButton(.closeButton)!.removeTrackingRect(tag)
@@ -193,13 +193,13 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 
 		panel.isFloatingPanel = true
 		
-		panel.registerForDraggedTypes(["NSFilePromiseProvider",kUTTypeFileURL as String])
+		panel.registerForDraggedTypes([NSPasteboard.PasteboardType(rawValue: "NSFilePromiseProvider"),NSPasteboard.PasteboardType(rawValue: kUTTypeFileURL as String as String)])
 ///		panel.registerForDraggedTypes([NSPasteboard.PasteboardType.fileURL])
 
 		self.window?.offsetFromKeyWindow()
     }
     
-	func windowShouldClose(_ sender: Any) -> Bool {
+	func windowShouldClose(_ sender: NSWindow) -> Bool {
 		panel.ignoresMouseEvents = true
 		updateTrackingAreas(false)
 
@@ -257,11 +257,11 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 	</dict>
 	</plist>
 """, ((document as! Document).fileURL?.absoluteString)!)
-            let filename = String(format: "%@%@", pasteboard.string(forType: kUTTypeFileURL as String)!, ((document as! Document).fileURL?.webFilename)!)
+            let filename = String(format: "%@%@", pasteboard.string(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeFileURL as String as String))!, ((document as! Document).fileURL?.webFilename)!)
 
             pasteboard.clearContents()
-            pasteboard.setString(urlString, forType: NSPasteboardTypeString)
-            pasteboard.setString(filename, forType: kPasteboardTypeFileURLPromise)
+            pasteboard.setString(urlString, forType: NSPasteboard.PasteboardType.string)
+            pasteboard.setString(filename, forType: NSPasteboard.PasteboardType(rawValue: kPasteboardTypeFileURLPromise))
 //            pasteboard.setString(filename, forType: kUTTypeFileURL as String)
             
             let item = MyFilePromiseProvider.init()
@@ -278,8 +278,8 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 		return true
 	}
 	
-	//	MARK:- Pasteboard Writer
-	func writableTypes(for pasteboard: NSPasteboard) -> [String] {
+	//	MARK:- Pasteboard Writing Protocol
+	func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
 		let item = MyFilePromiseProvider.init()
 		item.fileType = kUTTypeData as String
 		item.delegate = self
@@ -287,18 +287,19 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 		pasteboard.writeObjects([item])
 		let urlString = (document as! Document).fileURL?.lastPathComponent
 		let fileName = String(format: "%@.webloc", urlString!)
-		pasteboard.setPropertyList([fileName], forType:kUTTypeData as String)/*
+		pasteboard.setPropertyList([fileName], forType:NSPasteboard.PasteboardType(rawValue: kUTTypeData as String as String))/*
 		let url = URL.init(string: ((document as! Document).fileURL?.absoluteString)!)
 		pasteboard.setPropertyList(url as Any, forType: kUTTypeFileURL as String)*/
 
-		return [kUTTypeData as String]
+		return [NSPasteboard.PasteboardType(rawValue: kUTTypeData as String as String)]
 	}
-	
-	func writingOptions(forType type: String, pasteboard: NSPasteboard) -> NSPasteboard.WritingOptions {
-		return []
-	}
-
-	func pasteboardPropertyList(forType type: String) -> Any? {
+    
+    public func writingOptions(forType type: NSPasteboard.PasteboardType, pasteboard: NSPasteboard) -> NSPasteboard.WritingOptions
+    {
+        return []
+    }
+    
+	func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
 		return kUTTypeData
 	}
 	
@@ -370,10 +371,10 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 
 public class MyFilePromiseProvider : NSFilePromiseProvider {
 	
-	public override func writableTypes(for pasteboard: NSPasteboard) -> [String] {
+	public override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
 		if let items = pasteboard.pasteboardItems {
 			Swift.print("MyFilePromiseProvider -writableTypes(\(items.count))")
-			return [kUTTypeData as String]
+			return [NSPasteboard.PasteboardType(rawValue: kUTTypeData as String as String)]
 		}
 		else
 		{
@@ -381,9 +382,9 @@ public class MyFilePromiseProvider : NSFilePromiseProvider {
 		}
 	}
 	
-	public override func writingOptions(forType type: String, pasteboard: NSPasteboard) -> NSPasteboard.WritingOptions {
+	public override func writingOptions(forType type: NSPasteboard.PasteboardType, pasteboard: NSPasteboard) -> NSPasteboard.WritingOptions {
 			
-		if type == kUTTypeData as String {
+		if type.rawValue == kUTTypeData as String {
 			Swift.print("MyPromiseProvider -writingOptions()")
 			return []
 		}
@@ -391,10 +392,10 @@ public class MyFilePromiseProvider : NSFilePromiseProvider {
 		return super.writingOptions(forType: type, pasteboard: pasteboard)
 	}
 	
-	public override func pasteboardPropertyList(forType type: String) -> Any? {
+	public override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
 		Swift.print("MyPromiseProvider -pasteboardPropertyList(\(type))")
 
-		if type == kUTTypeData as String {
+		if type.rawValue == kUTTypeData as String {
 			let document = (userInfo as! Document)
 			let urlString = String(format: """
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -411,14 +412,14 @@ public class MyFilePromiseProvider : NSFilePromiseProvider {
 			return data
 		}
 		
-		if type == kUTTypeURL as String {
+		if type.rawValue == kUTTypeURL as String {
 			let document = (userInfo as! Document)
 			let url = document.fileURL
 			
 			return url
 		}
 		
-		if type == kUTTypeFileURL as String {
+		if type.rawValue == kUTTypeFileURL as String {
 			let document = (userInfo as! Document)
 			let url = document.fileURL
 			

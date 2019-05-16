@@ -19,6 +19,16 @@ struct RequestUserStrings {
 	let alertButton3rdInfo: String?
 }
 
+#if swift(>=4.0)
+    let NSURLPboardType = NSPasteboard.PasteboardType(kUTTypeURL as String)
+    let NSPasteboardURLReadingFileURLsOnlyKey = NSPasteboard.PasteboardType(kUTTypeURL as String)
+    let OffState = NSControl.StateValue.off
+    let OnState = NSControl.StateValue.on
+#else
+    let OffState = NSOffState
+    let OnState = NSOnState
+#endif
+
 fileprivate class SearchField : NSSearchField {
 	var title : String?
 	
@@ -58,23 +68,23 @@ fileprivate class SearchField : NSSearchField {
 		var item : NSMenuItem
 		
 		item = NSMenuItem.init(title: "Clear", action: nil, keyEquivalent: "")
-		item.tag = NSSearchFieldClearRecentsMenuItemTag
+		item.tag = NSSearchField.clearRecentsMenuItemTag
 		menu.addItem(item)
 		
 		item = NSMenuItem.separator()
-		item.tag = NSSearchFieldRecentsTitleMenuItemTag
+		item.tag = NSSearchField.recentsTitleMenuItemTag
 		menu.addItem(item)
 		
 		item = NSMenuItem.init(title: "Recent Searches", action: nil, keyEquivalent: "")
-		item.tag = NSSearchFieldRecentsTitleMenuItemTag
+		item.tag = NSSearchField.recentsTitleMenuItemTag
 		menu.addItem(item)
 		
 		item = NSMenuItem.init(title: "Recent", action: nil, keyEquivalent: "")
-		item.tag = NSSearchFieldRecentsTitleMenuItemTag
+		item.tag = NSSearchField.recentsTitleMenuItemTag
 		menu.addItem(item)
 		
 		item = NSMenuItem.init(title: "Recent Searches", action: nil, keyEquivalent: "")
-		item.tag = NSSearchFieldRecentsMenuItemTag
+		item.tag = NSSearchField.recentsMenuItemTag
 		menu.addItem(item)
 		
 		return menu
@@ -106,7 +116,7 @@ fileprivate class URLField: NSTextField {
 		if let string = withValue {
 			self.stringValue = string
 		}
-		self.lineBreakMode = NSLineBreakMode.byTruncatingHead
+		self.lineBreakMode = NSParagraphStyle.LineBreakMode.byTruncatingHead
 		self.usesSingleLineMode = true
 	}
 }
@@ -196,7 +206,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			else
 			{
 				fullScreen = keyWindow.frame
-				keyWindow.setFrame(NSScreen.main()!.visibleFrame, display: true, animate: true)
+				keyWindow.setFrame(NSScreen.main!.visibleFrame, display: true, animate: true)
 			}
 		}
 	}
@@ -209,7 +219,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	func doOpenFile(fileURL: URL,fromWindow: NSWindow? = nil) -> Bool {
 		let doc = NSApp.keyWindow?.windowController?.document as? Document
 		let webView = (NSApp.keyWindow?.contentView?.subviews.first) as? MyWebView
-		let dc = NSDocumentController.shared()
+		let dc = NSDocumentController.shared
 		var status : Bool = false
 		var itemURL = fileURL
 		
@@ -272,7 +282,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	func doOpenLocation(url: URL,fromWindow: NSWindow? = nil) -> Bool {
 		let doc = NSApp.keyWindow?.windowController?.document as? Document
 		let webView = (NSApp.keyWindow?.contentView?.subviews.first) as? MyWebView
-		let dc = NSDocumentController.shared()
+		let dc = NSDocumentController.shared
 		var status : Bool = false
 		var itemURL = url
 		
@@ -341,7 +351,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		
 		// Create alert
 		let alert = NSAlert()
-		alert.alertStyle = NSAlertStyle.informational
+		alert.alertStyle = NSAlert.Style.informational
 		alert.messageText = strings.alertMessageText
 		
 		// Create urlField
@@ -368,7 +378,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if let urlWindow = onWindow {
 			alert.beginSheetModal(for: urlWindow, completionHandler: { response in
 				// buttons are accept, cancel, default
-				if response == NSAlertThirdButtonReturn {
+				if response == NSApplication.ModalResponse.alertThirdButtonReturn {
 					var newUrl = (alert.buttons[2] as NSButton).toolTip
 					newUrl = UrlHelpers.ensureScheme(newUrl!)
 					if UrlHelpers.isValid(urlString: newUrl!) {
@@ -376,7 +386,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 					}
 				}
 				else
-                if response == NSAlertFirstButtonReturn {
+                if response == NSApplication.ModalResponse.alertFirstButtonReturn {
                     // swiftlint:disable:next force_cast
                     var newUrl = (alert.accessoryView as! NSTextField).stringValue
                     newUrl = UrlHelpers.ensureScheme(newUrl)
@@ -389,7 +399,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		else
 		{
 			switch alert.runModal() {
-			case NSAlertThirdButtonReturn:
+			case NSApplication.ModalResponse.alertThirdButtonReturn:
 				var newUrl = (alert.buttons[2] as NSButton).toolTip
 				newUrl = UrlHelpers.ensureScheme(newUrl!)
 				if UrlHelpers.isValid(urlString: newUrl!) {
@@ -398,7 +408,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 				
 				break
 				
-			case NSAlertFirstButtonReturn:
+			case NSApplication.ModalResponse.alertFirstButtonReturn:
 				var newUrl = (alert.accessoryView as! NSTextField).stringValue
 				newUrl = UrlHelpers.ensureScheme(newUrl)
 				if UrlHelpers.isValid(urlString: newUrl) {
@@ -421,7 +431,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		
 		// Create alert
 		let alert = NSAlert()
-		alert.alertStyle = NSAlertStyle.informational
+		alert.alertStyle = NSAlert.Style.informational
 		alert.messageText = strings.alertMessageText
 		
 		// Create our search field with recent searches
@@ -451,12 +461,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			alert.beginSheetModal(for: urlWindow, completionHandler: { response in
 				// buttons are user-search-url, cancel, google-search
 				switch response {
-				case NSAlertFirstButtonReturn,NSAlertThirdButtonReturn:
+				case NSApplication.ModalResponse.alertFirstButtonReturn,NSApplication.ModalResponse.alertThirdButtonReturn:
 					let newUrlFormat = k.searchLinks[ UserSettings.Search.value ]
 					let rawString = (alert.accessoryView as! NSTextField).stringValue
 					let newUrlString = rawString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
 					var urlString = String(format: newUrlFormat, newUrlString!)
-					let newWindow = (response == NSAlertThirdButtonReturn)
+					let newWindow = (response == NSApplication.ModalResponse.alertThirdButtonReturn)
 					
 					urlString = UrlHelpers.ensureScheme(urlString)
 					if UrlHelpers.isValid(urlString: urlString) {
@@ -473,12 +483,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		{
 			let response = alert.runModal()
 			switch response {
-			case NSAlertFirstButtonReturn,NSAlertThirdButtonReturn:
+			case NSApplication.ModalResponse.alertFirstButtonReturn,NSApplication.ModalResponse.alertThirdButtonReturn:
 				let newUrlFormat = k.searchLinks[ UserSettings.Search.value ]
 				let rawString = (alert.accessoryView as! NSTextField).stringValue
 				let newUrlString = rawString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
 				var urlString = String(format: newUrlFormat, newUrlString!)
-				let newWindow = (response == NSAlertThirdButtonReturn)
+				let newWindow = (response == NSApplication.ModalResponse.alertThirdButtonReturn)
 				
 				urlString = UrlHelpers.ensureScheme(urlString)
 				guard UrlHelpers.isValid(urlString: urlString), let searchURL = URL.init(string: urlString) else {
@@ -565,7 +575,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func openURLInNewWindow(url : URL) {
 		do {
-			let doc = try NSDocumentController.shared().makeDocument(withContentsOf: url, ofType: "Main")
+			let doc = try NSDocumentController.shared.makeDocument(withContentsOf: url, ofType: "Main")
 			if let window = doc.windowControllers.first?.window {
 				window.makeKeyAndOrderFront(self)
 			}
@@ -575,7 +585,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	@IBAction func newDocument(_ sender: AnyObject) {
-		let dc = NSDocumentController.shared()
+		let dc = NSDocumentController.shared
 		do {
 			let doc = try dc.makeUntitledDocument(ofType: "DocumentType")
 			doc.makeWindowControllers()
@@ -584,7 +594,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			let window : NSPanel = wc!.window as! NSPanel as NSPanel
 			NSApp.addWindowsItem(window, title: (window.windowController?.document?.displayName)!, filename: false)
 
-			if let event = NSApp.currentEvent, event.modifierFlags.contains(.shift), let keyWindow = NSApp.keyWindow {
+			if let event = NSApp.currentEvent, event.modifierFlags.contains(NSEvent.ModifierFlags.shift), let keyWindow = NSApp.keyWindow {
 				keyWindow.addTabbedWindow(window, ordered: .below)
 			}
 			else
@@ -600,39 +610,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	var newWindows : Bool {
 		get {
-			return newWindowsState == NSOnState
+			return newWindowsState == OnState
 		}
 		set (value) {
-			newWindowsState = (value ? NSOnState : NSOffState)
+			newWindowsState = (value ? OnState : OffState)
 		}
 	}
-	var newWindowsState : NSControl.StateValue = NSOffState
+	var newWindowsState : NSControl.StateValue = OffState
 	@IBAction func doMakeNewWindows(_ sender: NSMenuItem) {
-		newWindowsState = (newWindowsState == NSOnState) ? NSOffState : NSOnState
+		newWindowsState = (newWindowsState == OnState) ? OffState : OnState
 	}
 	
 	var loadByFileURL : Bool {
 		get {
-			return useLoadFileURL.state == NSOnState
+			return useLoadFileURL.state == OnState
 		}
 	}
 
 	@IBOutlet weak var useLoadFileURL: NSMenuItem!
 	@IBAction func doLoadFileURL(_ sender: Any) {
-		useLoadFileURL.state = (useLoadFileURL.state == NSOnState) ? NSOffState : NSOnState
+		useLoadFileURL.state = (useLoadFileURL.state == OnState) ? OffState : OnState
 	}
 	
 	override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 		switch menuItem.title {
 		case "Create new windows":
-			menuItem.state = newWindowsState == NSOffState ? NSOnState : NSOffState
+			menuItem.state = newWindowsState == OffState ? OnState : OffState
 			break
 			
 		case k.bingName, k.googleName, k.yahooName:
 			let group = menuItem.tag / 100
 			let index = (menuItem.tag - (group * 100)) % 3
 			
-			menuItem.state = UserSettings.Search.value == index ? NSOnState : NSOffState
+			menuItem.state = UserSettings.Search.value == index ? OnState : OffState
 			break
 			
 		default:
@@ -652,9 +662,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	
 	func keyDownMonitor(event: NSEvent) -> Bool {
-		switch event.modifierFlags.intersection(.deviceIndependentFlagsMask) {
+		switch event.modifierFlags.intersection(NSEvent.ModifierFlags.deviceIndependentFlagsMask) {
 			
-		case [.command]:
+		case [NSEvent.ModifierFlags.command]:
 			self.commandKeyDown = true
 			return true
 			
@@ -804,7 +814,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	// MARK:- Delegate
 	func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
-		let dc = NSDocumentController.shared()
+		let dc = NSDocumentController.shared
 		return dc.documents.count == 0
 	}
 
@@ -819,7 +829,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if self.isSandboxed() { _ = self.loadBookmarks() }
 		
 		//	Watch local keys for window movenment, etc.
-		localKeyDownMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEventMask.flagsChanged) { (event) -> NSEvent? in
+		localKeyDownMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.flagsChanged) { (event) -> NSEvent? in
 			return self.keyDownMonitor(event: event) ? nil : event
 		}
 	}

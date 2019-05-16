@@ -30,7 +30,7 @@ class MyWebView : WKWebView {
 	}
 
 	override func mouseEntered(with theEvent: NSEvent) {
-		if theEvent.modifierFlags.contains(.shift) {
+		if theEvent.modifierFlags.contains(NSEvent.ModifierFlags.shift) {
 			NSApp.activate(ignoringOtherApps: true)
 		}
 		else
@@ -46,7 +46,7 @@ class MyWebView : WKWebView {
 	func next(url: URL) {
 		let doc = self.window?.windowController?.document as? Document
 		let newWindows = appDelegate.newWindows
-		let dc = NSDocumentController.shared()
+		let dc = NSDocumentController.shared
 		var nextURL = url
 		
 		//  Pick off request (non-file) urls first
@@ -54,7 +54,7 @@ class MyWebView : WKWebView {
 			if newWindows {
 				do
 				{
-					let next = try NSDocumentController.shared().makeDocument(withContentsOf: url, ofType: "DocumentType")
+					let next = try NSDocumentController.shared.makeDocument(withContentsOf: url, ofType: "DocumentType")
 					next.makeWindowControllers()
 					dc.addDocument(next)
 
@@ -126,17 +126,18 @@ class MyWebView : WKWebView {
 		let newWindows = appDelegate.newWindows
 		let pboard = sender.draggingPasteboard()
 		let items = pboard.pasteboardItems
+///		let v : NSView = NSView()
 
 		NSApp.activate(ignoringOtherApps: true)
 
 		if (pboard.types?.contains(NSURLPboardType))! {
-			let dc = NSDocumentController.shared()
+			let dc = NSDocumentController.shared
 			for item in items! {
-				if let urlString = item.string(forType: kUTTypeURL as String) {
+				if let urlString = item.string(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeURL as String as String)) {
 					self.load(URLRequest(url: URL(string: urlString)!))
 				}
 				else
-				if let urlString = item.string(forType: kUTTypeFileURL as String/*"public.file-url"*/), var itemURL = URL.init(string: urlString) {
+				if let urlString = item.string(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeFileURL as String as String)/*"public.file-url"*/), var itemURL = URL.init(string: urlString) {
 					if newWindows {
 						_ = appDelegate.doOpenFile(fileURL: itemURL, fromWindow: self.window)
 						continue
@@ -179,7 +180,7 @@ class MyWebView : WKWebView {
 					}
 				}
 				else
-				if let data = item.data(forType: kUTTypeData as String) {
+				if let data = item.data(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeData as String as String)) {
 					Swift.print("data \(data)")
 				}
 				else
@@ -219,8 +220,8 @@ class CenteredClipView : NSClipView
 class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 	
 	var appDelegate: AppDelegate = NSApp.delegate as! AppDelegate
-	var trackingTag: NSTrackingRectTag?
-	dynamic var observing : Bool = false
+	var trackingTag: NSView.TrackingRectTag?
+	var observing : Bool = false
 	func updateTrackingAreas() {
 		if let tag = trackingTag {
 			view.removeTrackingRect(tag)
@@ -359,19 +360,18 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		childView.leadingAnchor.constraint(equalTo: parentView.leadingAnchor).isActive = true
 		childView.trailingAnchor.constraint(equalTo: parentView.trailingAnchor).isActive = true
 		childView.bottomAnchor.constraint(equalTo: parentView.bottomAnchor).isActive = true
-//		childView.widthAnchor.constraint(equalTo: parentView.widthAnchor).isActive = true
-		
+		childView.widthAnchor.constraint(equalTo: parentView.widthAnchor).isActive = true
 	}
 	
-	override func viewDidLoad() {
-		super.viewDidLoad()
+	override func viewDidAppear() {
+		super.viewDidAppear()
 		if let superView = webView.superview {
 			self.fit(webView, parentView: superView)
 		}
 
 		// Do any additional setup after loading the view.
 		
-		webView.autoresizingMask = [NSAutoresizingMaskOptions.viewHeightSizable, NSAutoresizingMaskOptions.viewWidthSizable]
+		webView.autoresizingMask = [NSView.AutoresizingMask.height, NSView.AutoresizingMask.width]
 		
 		// Allow plug-ins such as silverlight
 		webView.configuration.preferences.plugInsEnabled = true
@@ -397,7 +397,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 			object: nil)
 		
 		//  We allow drag from title's document icon to self or Finder
-		webView.register(forDraggedTypes: [NSURLPboardType])
+		webView.registerForDraggedTypes([NSURLPboardType])
 		webView.load(URLRequest(url: URL(string: UserSettings.homePageURL.value)!))
 		
 		// Do any additional setup after loading the view.
@@ -458,7 +458,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 						if let track = AVURLAsset(url: url, options: nil).tracks.first {
 							
 							//    if it's a video file, get and set window content size to its dimentions
-							if track.mediaType == AVMediaTypeVideo {
+							if track.mediaType == AVMediaType.video {
 								let oldSize = self.webView.bounds.size
 								title = url.lastPathComponent as NSString
 								webSize = track.naturalSize
@@ -568,7 +568,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		if let newURL = navigationAction.request.url {
 			appDelegate.newWindows = false
 			do {
-				let doc = try NSDocumentController.shared().makeDocument(withContentsOf: newURL, ofType: "Custom")
+				let doc = try NSDocumentController.shared.makeDocument(withContentsOf: newURL, ofType: "Custom")
 				if let vwc = doc.windowControllers.first as? PanelController,
 					let window = vwc.window, let cvc = window.contentViewController as? ViewController {
 					let newView = MyWebView.init(frame: webView.frame, configuration: configuration)
