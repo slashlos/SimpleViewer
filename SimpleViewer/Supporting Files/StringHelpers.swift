@@ -12,7 +12,8 @@ import CoreAudioKit
 extension String {
     func replacePrefix(_ prefix: String, replacement: String) -> String {
         if hasPrefix(prefix) {
-            return replacement + substring(from: prefix.endIndex)
+            return replacement + String(self[prefix.endIndex])
+//            return replacement + substring(from: prefix.endIndex)
         }
         else {
             return self
@@ -22,7 +23,8 @@ extension String {
 		if hasSuffix(suffix) {
 			let sufsize = suffix.count < count ? -suffix.count : 0
 			let toIndex = index(endIndex, offsetBy: sufsize)
-			return substring(to: toIndex) + replacement
+            return String(self[..<toIndex]) + replacement
+//			return substring(to: toIndex) + replacement
 		}
 		else {
 			return self
@@ -57,7 +59,7 @@ extension String {
     /// or `nil` if the range can't be converted.
     func substring(with nsrange: NSRange) -> String? {
         guard let range = Range(nsrange, in: self) else { return nil }
-        return self[range]
+        return String(self[range])
     }
     
     /// Returns a range equivalent to the given `NSRange`,
@@ -70,7 +72,7 @@ extension String {
 
 extension NSAttributedString {
     class func string(fromAsset: String) -> String {
-        let asset = NSDataAsset.init(name: fromAsset)
+        let asset = NSDataAsset.init(name: NSDataAsset.Name(rawValue: fromAsset))
         let data = NSData.init(data: (asset?.data)!)
         let text = String.init(data: data as Data, encoding: String.Encoding.utf8)
         
