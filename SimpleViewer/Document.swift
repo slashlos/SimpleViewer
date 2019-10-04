@@ -58,7 +58,10 @@ class DocumentController : NSDocumentController {
 		}
 		return doc
 	}
-	
+	class override func restoreWindow(withIdentifier identifier: NSUserInterfaceItemIdentifier, state: NSCoder, completionHandler: @escaping (NSWindow?, Error?) -> Void)
+	{
+		super.restoreWindow(withIdentifier: identifier, state: state, completionHandler: completionHandler)
+	}
 }
 
 class Document: NSDocument {
@@ -74,7 +77,7 @@ class Document: NSDocument {
 					return tmpIcon
 				}
 			}
-			let tmpImage = NSImage.init(named: NSImage.Name(rawValue: "docIcon"))
+			let tmpImage = NSImage.init(named: "docIcon")
 			let docImage = tmpImage?.resize(w: 32, h: 32)
 			return docImage
 		}
@@ -125,10 +128,10 @@ class Document: NSDocument {
 		makeWindowController("Main")
 	}
 	func makeWindowController(_ typeName: String) {
-		let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+		let storyboard = NSStoryboard(name: "Main", bundle: nil)
 		let identifier = String(format: "%@Controller", typeName)
 		
-		let controller = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: identifier)) as! NSWindowController
+		let controller = storyboard.instantiateController(withIdentifier: identifier) as! NSWindowController
 		self.addWindowController(controller)
 		
 		//  Delegate will close down any observations before closure

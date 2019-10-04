@@ -116,7 +116,7 @@ fileprivate class URLField: NSTextField {
 		if let string = withValue {
 			self.stringValue = string
 		}
-		self.lineBreakMode = NSParagraphStyle.LineBreakMode.byTruncatingHead
+		self.lineBreakMode = .byTruncatingHead
 		self.usesSingleLineMode = true
 	}
 }
@@ -632,7 +632,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		useLoadFileURL.state = (useLoadFileURL.state == OnState) ? OffState : OnState
 	}
 	
-	override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 		switch menuItem.title {
 		case "Create new windows":
 			menuItem.state = newWindowsState == OffState ? OnState : OffState

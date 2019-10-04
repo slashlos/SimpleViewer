@@ -124,22 +124,27 @@ class MyWebView : WKWebView {
 	override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
 		let isSandboxed = appDelegate.isSandboxed()
 		let newWindows = appDelegate.newWindows
-		let pboard = sender.draggingPasteboard()
-		let items = pboard.pasteboardItems
+		let pboard = sender.draggingPasteboard
+		guard let items = pboard.pasteboardItems else { return false }
+		let types : Set<NSPasteboard.PasteboardType> = Set((pboard.types)!)
+		guard types.count > 0 else { return false }
 ///		let v : NSView = NSView()
+		var handled = 0
 
 		NSApp.activate(ignoringOtherApps: true)
 
-		if (pboard.types?.contains(NSURLPboardType))! {
+		if types.union(Set([.URL,.fileURL])).count > 0 {
 			let dc = NSDocumentController.shared
-			for item in items! {
+			for item in items {
 				if let urlString = item.string(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeURL as String as String)) {
 					self.load(URLRequest(url: URL(string: urlString)!))
+					handled += 1
 				}
 				else
 				if let urlString = item.string(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeFileURL as String as String)/*"public.file-url"*/), var itemURL = URL.init(string: urlString) {
 					if newWindows {
 						_ = appDelegate.doOpenFile(fileURL: itemURL, fromWindow: self.window)
+						handled += 1
 						continue
 					}
 
@@ -147,12 +152,12 @@ class MyWebView : WKWebView {
 					//	so each can be read to derive the target url info.
 					if isSandboxed != appDelegate.storeBookmark(url: itemURL as URL) {
 						Swift.print("Yoink, unable to bookmark (\(itemURL))")
-						return false
+						continue
 					}
 					if let original = (itemURL as NSURL).resolvedFinderAlias() {
 						if isSandboxed != appDelegate.storeBookmark(url: original as URL) {
 							Swift.print("Yoink, unable to bookmark orignal (\(original))")
-							return false
+							continue
 						}
 						itemURL = original
 					}
@@ -178,22 +183,16 @@ class MyWebView : WKWebView {
 					{
 						self.load(URLRequest.init(url: itemURL))
 					}
-				}
-				else
-				if let data = item.data(forType: NSPasteboard.PasteboardType(rawValue: kUTTypeData as String as String)) {
-					Swift.print("data \(data)")
-				}
-				else
-				{
-					Swift.print("items has \(item.types)")
+					handled += 1
 				}
 			}
 		}
 		else
-		if (pboard.types?.contains(NSPasteboardURLReadingFileURLsOnlyKey))! {
-			Swift.print("we have NSPasteboardURLReadingFileURLsOnlyKey")
+		{
+			Swift.print("\(items.count) item(s) has \(types.count) type(s)")
+			Swift.print(types)
 		}
-		return true
+		return handled == items.count
 	}
 }
 
@@ -362,6 +361,11 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		childView.bottomAnchor.constraint(equalTo: parentView.bottomAnchor).isActive = true
 		childView.widthAnchor.constraint(equalTo: parentView.widthAnchor).isActive = true
 	}
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		
+		webView.load(URLRequest(url: URL(string: UserSettings.homePageURL.value)!))
+	}
 	
 	override func viewDidAppear() {
 		super.viewDidAppear()
@@ -398,7 +402,6 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		
 		//  We allow drag from title's document icon to self or Finder
 		webView.registerForDraggedTypes([NSURLPboardType])
-		webView.load(URLRequest(url: URL(string: UserSettings.homePageURL.value)!))
 		
 		// Do any additional setup after loading the view.
 		DispatchQueue.main.async { [weak self]() -> Void in
@@ -415,8 +418,8 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 	override func viewDidLayout() {
 		if let superView = webView.superview {
 			let size = superView.bounds.size
-			webView.widthAnchor.constraint(equalToConstant: size.width)
-			webView.heightAnchor.constraint(equalToConstant: size.height)
+			_ = webView.widthAnchor.constraint(equalToConstant: size.width)
+			_ = webView.heightAnchor.constraint(equalToConstant: size.height)
 		}
 	}
 
@@ -485,7 +488,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 							NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main, using: { (_) in
 								DispatchQueue.main.async {
 									Swift.print("restarting #1")
-									videoPlayer.seek(to: kCMTimeZero)
+									videoPlayer.seek(to: CMTime.zero)
 									videoPlayer.play()
 								}
 							})
@@ -493,7 +496,7 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 							NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item, queue: .main, using: { (_) in
 								DispatchQueue.main.async {
 									Swift.print("restarting #2")
-									videoPlayer.seek(to: kCMTimeZero)
+									videoPlayer.seek(to: CMTime.zero)
 									videoPlayer.play()
 								}
 							})

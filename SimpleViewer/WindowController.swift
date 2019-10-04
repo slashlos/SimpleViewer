@@ -130,14 +130,24 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 		}
 		if trackingTag == theEvent.trackingNumber {
 			window!.standardWindowButton(.closeButton)!.alphaValue = 1.00
-			Swift.print("mouseEntered")
 		}
+//		window!.titlebarAppearsTransparent = false
+		window!.titleVisibility = NSWindow.TitleVisibility.visible
+		if let window = self.window, let docIcon = window.standardWindowButton(.documentIconButton)?.cell?.controlView {
+			docIcon.isHidden = false
+		}
+		Swift.print("mouseEntered")
 	}
 	override func mouseExited(with theEvent: NSEvent) {
 		if trackingTag == theEvent.trackingNumber {
 			window!.standardWindowButton(.closeButton)!.alphaValue = 0.01
-			Swift.print("mouseExited")
 		}
+//		window!.titlebarAppearsTransparent = true
+		window!.titleVisibility = NSWindow.TitleVisibility.hidden
+		if let window = self.window, let docIcon = window.standardWindowButton(.documentIconButton)?.cell?.controlView {
+			docIcon.isHidden = true
+		}
+		Swift.print("mouseExited")
 	}
 	
 	private let dragThreshold: CGFloat = 3.0
@@ -154,7 +164,7 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 			let timeout = NSEvent.foreverDuration//NSEvent.foreverDuration
 			
 			if hitView == docIcon {
-				window.trackEvents(matching: eventMask, timeout: timeout, mode: .eventTrackingRunLoopMode, handler: {(event, stop) in
+				window.trackEvents(matching: eventMask, timeout: timeout, mode: RunLoop.Mode.eventTracking, handler: {(event, stop) in
 					
                     if event?.type == .leftMouseUp {
 						stop.pointee = true
@@ -175,6 +185,7 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 	}
 	
 	var trackingTag: NSView.TrackingRectTag?
+	var contentTag: NSView.TrackingRectTag?
 	func updateTrackingAreas(_ establish : Bool) {
 		if let tag = trackingTag {
 			window!.standardWindowButton(.closeButton)!.removeTrackingRect(tag)
@@ -182,6 +193,12 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 		if establish, let closeButton = window!.standardWindowButton(.closeButton) {
 			window!.ignoresMouseEvents = false
 			trackingTag = closeButton.addTrackingRect(closeButton.bounds, owner: self, userData: nil, assumeInside: false)
+		}
+		if let tag = contentTag {
+			window!.contentView?.removeTrackingRect(tag)
+		}
+		if establish, let contentView = window!.contentView {
+			contentTag = contentView.addTrackingRect(contentView.bounds, owner: self, userData: nil, assumeInside: false)
 		}
 	}
 
@@ -316,7 +333,7 @@ class PanelController : NSWindowController,NSWindowDelegate,NSFilePromiseProvide
 	// MARK: - NSDraggingDestination
 
 	func draggingEntered(forWebloc webloc: PanelController, sender: NSDraggingInfo) -> NSDragOperation {
-		return sender.draggingSourceOperationMask().intersection([.copy])
+		return sender.draggingSourceOperationMask.intersection([.copy])
 	}
 	
 	func pasteboardWriter(forWebloc webloc: PanelController) -> NSPasteboardWriting {
