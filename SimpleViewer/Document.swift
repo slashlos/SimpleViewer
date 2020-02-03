@@ -58,10 +58,6 @@ class DocumentController : NSDocumentController {
 		}
 		return doc
 	}
-	class override func restoreWindow(withIdentifier identifier: NSUserInterfaceItemIdentifier, state: NSCoder, completionHandler: @escaping (NSWindow?, Error?) -> Void)
-	{
-		super.restoreWindow(withIdentifier: identifier, state: state, completionHandler: completionHandler)
-	}
 }
 
 class Document: NSDocument {
