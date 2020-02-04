@@ -106,7 +106,7 @@
                                                             <action selector="newDocument:" target="Ady-hI-5gd" id="AE2-0k-2ZP"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Tab" keyEquivalent="N" id="BT9-Rr-kuq">
+                                                    <menuItem title="Tab" tag="1" alternate="YES" keyEquivalent="N" id="BT9-Rr-kuq">
                                                         <connections>
                                                             <action selector="newDocument:" target="Ady-hI-5gd" id="cpA-J7-VyZ"/>
                                                         </connections>

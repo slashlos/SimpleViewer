@@ -594,7 +594,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			let window : NSPanel = wc!.window as! NSPanel as NSPanel
 			NSApp.addWindowsItem(window, title: (window.windowController?.document?.displayName)!, filename: false)
 
-			if let event = NSApp.currentEvent, event.modifierFlags.contains(NSEvent.ModifierFlags.shift), let keyWindow = NSApp.keyWindow {
+			if sender.tag > 0 || NSApp.currentEvent?.modifierFlags.contains(NSEvent.ModifierFlags.shift) ?? false, let keyWindow = NSApp.keyWindow {
 				keyWindow.addTabbedWindow(window, ordered: .below)
 			}
 			else
