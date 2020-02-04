@@ -229,7 +229,14 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
 		trackingTag = view.addTrackingRect(view.bounds, owner: self, userData: nil, assumeInside: false)
 	}
 	
-    // MARK: Zoom
+	// MARK:- Tab
+	@objc @IBAction func toggleTabBar(_ sender: Any) {
+		if let panel = self.view.window {
+			panel.toggleTabBar(sender)
+		}
+	}
+
+    // MARK:- Zoom
     /**
      Use to adjust the height of the Document View.  Use this instead of other methods when you want to resize the view.
      */

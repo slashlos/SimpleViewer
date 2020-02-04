@@ -632,6 +632,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		useLoadFileURL.state = (useLoadFileURL.state == OnState) ? OffState : OnState
 	}
 	
+	@objc @IBAction func mergeAllWindows(_ sender: Any) {
+		if let panel = NSApp.keyWindow {
+			panel.mergeAllWindows(sender)
+		}
+	}
+
 	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 		switch menuItem.title {
 		case "Create new windows":
